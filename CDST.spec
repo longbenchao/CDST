@@ -1,20 +1,44 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+block_cipher = None
 
 a = Analysis(
     ['cdst_gui.py'],
-    pathex=[],
+    pathex=['src'],
     binaries=[],
-    datas=[],
-    hiddenimports=[],
+    datas=[
+        ('src/cdst', 'cdst'),
+    ],
+    hiddenimports=[
+        'customtkinter',
+        'pandas',
+        'numpy',
+        'Bio',
+        'Bio.SeqIO',
+        'networkx',
+        'scipy',
+        'scipy.cluster',
+        'scipy.cluster.hierarchy',
+        'PIL',
+        'PIL.Image',
+        'packaging.version',
+    ],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=[],
+    excludes=[
+        'torch',
+        'matplotlib',
+        'jinja2',
+        'gi',
+        'IPython',
+        'notebook',
+        'nbconvert',
+    ],
     noarchive=False,
     optimize=0,
 )
-pyz = PYZ(a.pure)
+pyz = PYZ(a.pure, a.zipped_data)
 
 exe = EXE(
     pyz,
