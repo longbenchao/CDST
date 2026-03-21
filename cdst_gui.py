@@ -8,7 +8,45 @@ import threading
 import os
 import sys
 
-from cdst import core
+# Add src directory to path for local development
+_script_dir = os.path.dirname(os.path.abspath(__file__))
+_src_dir = os.path.join(_script_dir, 'src')
+
+# Handle PyInstaller bundled resources
+if getattr(sys, 'frozen', False):
+    # Running as compiled executable
+    bundle_dir = sys._MEIPASS
+    # Add the bundled cdst package to path
+    cdst_bundle_path = os.path.join(bundle_dir, 'cdst')
+    if os.path.exists(cdst_bundle_path):
+        sys.path.insert(0, bundle_dir)
+    # Also try looking in the same directory as the executable
+    exe_dir = os.path.dirname(sys.executable)
+    cdst_exe_path = os.path.join(exe_dir, 'cdst')
+    if os.path.exists(cdst_exe_path) and exe_dir not in sys.path:
+        sys.path.insert(0, exe_dir)
+else:
+    # Running from source - add src directory to path
+    if os.path.exists(_src_dir) and _src_dir not in sys.path:
+        sys.path.insert(0, _src_dir)
+
+# Try importing cdst module
+try:
+    from cdst import core
+except ImportError as e:
+    print(f"Error importing cdst module: {e}")
+    print(f"Script directory: {_script_dir}")
+    print(f"Src directory: {_src_dir}")
+    print(f"Python path: {sys.path}")
+    
+    # List available directories
+    if os.path.exists(_src_dir):
+        print(f"Contents of src directory: {os.listdir(_src_dir)}")
+        cdst_path = os.path.join(_src_dir, 'cdst')
+        if os.path.exists(cdst_path):
+            print(f"Contents of cdst directory: {os.listdir(cdst_path)}")
+    
+    raise
 import pandas as pd
 
 
