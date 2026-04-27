@@ -30,47 +30,39 @@ build_current() {
     # Clean previous builds
     rm -rf build/ dist/ *.spec 2>/dev/null || true
     
+    # Common PyInstaller arguments
+    local common_args="--name $app_name --windowed --onefile"
+    local hidden_imports="--hidden-import=tkinter --hidden-import=pandas --hidden-import=numpy --hidden-import=Bio --hidden-import=networkx --hidden-import=scipy --hidden-import=matplotlib --hidden-import=PIL --hidden-import=customtkinter --hidden-import=psutil --hidden-import=cdst --hidden-import=cdst.core --hidden-import=cdst.cli --hidden-import=cdst.gui --hidden-import=cdst.gui.main_window --hidden-import=cdst.gui.utils --hidden-import=cdst.gui.utils.config --hidden-import=cdst.gui.utils.logger --hidden-import=cdst.gui.utils.worker --hidden-import=cdst.gui.tabs --hidden-import=cdst.gui.tabs.quick_analysis --hidden-import=cdst.gui.tabs.step_by_step --hidden-import=cdst.gui.tabs.database_manager --hidden-import=cdst.gui.tabs.results_viewer --hidden-import=cdst.gui.tabs.settings --hidden-import=cdst.visualization"
+    
     # Run PyInstaller
     if [[ "$PLATFORM" == "Darwin" ]]; then
         # macOS build
         python -m PyInstaller \
-            --name "$app_name" \
-            --windowed \
-            --onefile \
-            --icon=icon.icns \
+            $common_args \
             --add-data "src/cdst:cdst" \
-            --hidden-import=tkinter \
-            --hidden-import=pandas \
+            $hidden_imports \
             --osx-bundle-identifier=com.cdst.app \
-            cdst_gui.py
+            cdst_gui_new.py
         
         echo -e "${GREEN}macOS app created in dist/$app_name.app${NC}"
         
     elif [[ "$PLATFORM" == "Linux" ]]; then
         # Linux build
         python -m PyInstaller \
-            --name "$app_name" \
-            --windowed \
-            --onefile \
-            --icon=icon.png \
+            $common_args \
             --add-data "src/cdst:cdst" \
-            --hidden-import=tkinter \
-            --hidden-import=pandas \
-            cdst_gui.py
+            $hidden_imports \
+            cdst_gui_new.py
         
         echo -e "${GREEN}Linux executable created in dist/$app_name${NC}"
         
     elif [[ "$PLATFORM" == MINGW* ]] || [[ "$PLATFORM" == CYGWIN* ]] || [[ "$PLATFORM" == MSYS* ]]; then
         # Windows build
         python -m PyInstaller \
-            --name "$app_name" \
-            --windowed \
-            --onefile \
-            --icon=icon.ico \
+            $common_args \
             --add-data "src/cdst;cdst" \
-            --hidden-import=tkinter \
-            --hidden-import=pandas \
-            cdst_gui.py
+            $hidden_imports \
+            cdst_gui_new.py
         
         echo -e "${GREEN}Windows executable created in dist/$app_name.exe${NC}"
     fi
