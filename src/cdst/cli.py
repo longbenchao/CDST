@@ -48,6 +48,22 @@ def main():
     hc.add_argument("-m", "--matrix", required=True, help="Input difference matrix CSV")
     hc.add_argument("-o", "--output", required=True, help="Output directory")
 
+    # Subcommand: join
+    join = subparsers.add_parser("join", help="Join CDST database directories.")
+    join.add_argument("-d", "--inputdirs", nargs="+", required=True, help="Input directories containing md5_hashes.json")
+    join.add_argument("-o", "--output", required=True, help="Output directory")
+    join.add_argument("--matrix", action="store_true", help="Generate combined matrices")
+    join.add_argument("--mst", action="store_true", help="Generate combined MST")
+    join.add_argument("-v", "--verbose", action="store_true", help="Verbose output")
+
+    # Subcommand: test
+    test = subparsers.add_parser("test", help="Compare new samples against an existing JSON database.")
+    test.add_argument("-i", "--input", nargs="+", required=True, help="Input CDS FASTA files")
+    test.add_argument("-j", "--json", required=True, help="Existing JSON file of MD5 hash lists")
+    test.add_argument("-o", "--output", required=True, help="Output directory")
+    test.add_argument("-L", "--min-cds-len", type=int, default=201, help="Minimum CDS length")
+    test.add_argument("-v", "--verbose", action="store_true", help="Verbose output")
+
     args = parser.parse_args()
 
     if args.command == "generate":
@@ -112,3 +128,28 @@ def main():
             verbose=args.verbose,
         )
 
+    elif args.command == "join":
+        outputs = core.join_databases(
+            args.inputdirs,
+            args.output,
+            generate_matrix=args.matrix,
+            generate_mst=args.mst,
+            verbose=args.verbose,
+        )
+        for label, path in outputs.items():
+            print(f"[cdst] {label}: {path}")
+
+    elif args.command == "test":
+        outputs = core.test_new_samples(
+            args.input,
+            args.json,
+            args.output,
+            min_cds_len=args.min_cds_len,
+            verbose=args.verbose,
+        )
+        for label, path in outputs.items():
+            print(f"[cdst] {label}: {path}")
+
+
+if __name__ == "__main__":
+    main()
